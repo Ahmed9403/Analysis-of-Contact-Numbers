@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>تحليل أرقام الاتصالات</title>
+
+<!-- SheetJS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+/* ============================
+   عام
+============================ */
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    background:#10121a; /* داكن جدًا ومريح للعين */
+    color:#dcdcdc; /* نص فاتح لكن هادي */
+    padding:0;
+    margin:0;
+}
+
+.container{
+    max-width:950px;
+    margin:40px auto;
+    padding:30px;
+    background: linear-gradient(145deg, #1a1a2e, #10121a);
+    border-radius:20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* ============================
+   العناوين
+============================ */
+h2{
+    text-align:center;
+    font-size:34px;
+    color:#80c8c4; /* لون هادئ للعنوان */
+    margin-bottom:35px;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.6);
+}
+
+h3, h4{
+    margin-top:25px;
+    color:#dcdcdc;
+}
+
+/* ============================
+   inputs و buttons
+============================ */
+p{
+    font-weight:bold;
+    margin-bottom:8px;
+}
+
+input[type="file"]{
+    display:block;
+    width:100%;
+    padding:12px 15px;
+    margin-bottom:20px;
+    border-radius:12px;
+    border:none;
+    background:#1f1f3a; /* داكن هادي */
+    color:#e0e0e0;
+    font-size:15px;
+    cursor:pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover{
+    background:#2b2b50;
+}
+
+button{
+    padding:14px 28px;
+    margin:10px 10px 20px 0;
+    cursor:pointer;
+    border:none;
+    background: #608c84; /* أخضر هادئ */
+    color:#10121a;
+    border-radius:12px;
+    font-weight:bold;
+    font-size:16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+}
+
+button:hover{
+    background:#7db3aa;
+    transform: translateY(-2px);
+}
+
+button:active{
+    transform: translateY(1px);
+}
+
+/* ============================
+   الجدول
+============================ */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+    background:#181a2b; /* داكن هادي */
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+th, td{
+    border:1px solid #2a2a40;
+    padding:14px;
+    text-align:center;
+    font-size:15px;
+    color:#dcdcdc;
+}
+
+th{
+    background:#262640;
+    font-weight:bold;
+}
+
+td{
+    background:#1d1f33;
+}
+
+/* رقم الخدمة */
+td.number{
+    font-weight:bold;
+    background:#5aa9a0; /* أخضر مريح */
+    color:#10121a;
+    border-radius:6px;
+    cursor:pointer;
+    transition: all 0.2s ease;
+}
+
+td.number:hover{
+    background:#7dc1b9;
+    color:#10121a;
+    text-decoration:underline;
+}
+
+/* رقم الخدمة - الملف الواحد */
+td.number.single{
+    font-weight:bold;
+    background:#5aa97c; /* أخضر هادئ */
+    color:#10121a;
+    border-radius:6px;
+    cursor:pointer;
+    transition: all 0.2s ease;
+}
+td.number.single:hover{
+    background:#7dc1a0;
+}
+
+/* رقم الخدمة - الملفين (مشترك) */
+td.number.common{
+    font-weight:bold;
+    background:#4f81bd; /* أزرق هادئ */
+    color:#f0f0f5;
+    border-radius:6px;
+    cursor:pointer;
+    transition: all 0.2s ease;
+}
+td.number.common:hover{
+    background:#6995d1;
+}
+
+/* ============================
+   الحاويات الداخلية
+============================ */
+#detailsContainer{
+    margin-top:30px;
+}
+
+div[style*="max-height:300px"]{
+    border-radius:12px;
+    overflow:auto;
+    border:1px solid #2a2a40;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    background:#161728;
+}
+
+/* تحسين التمرير */
+div[style*="max-height:300px"]::-webkit-scrollbar{
+    width:10px;
+}
+
+div[style*="max-height:300px"]::-webkit-scrollbar-track{
+    background:#10121a;
+}
+
+div[style*="max-height:300px"]::-webkit-scrollbar-thumb{
+    background:#555;
+    border-radius:5px;
+}
+
+div[style*="max-height:300px"]::-webkit-scrollbar-thumb:hover{
+    background:#777;
+}
+
+/* ============================
+   الروابط (الإحداثيات)
+============================ */
+a{
+    color:#a0e0e0; /* لون فاتح جداً وواضح على الخلفية الداكنة */
+    font-weight:bold;
+    text-decoration:underline;
+    transition: color 0.2s ease;
+}
+
+a:hover{
+    color:#ffffff;
+}
+
+/* ============================
+   hover على الصفوف
+============================ */
+table tr:hover td{
+    background:#2a2a48;
+}
+
+/* زر الملف الواحد */
+button.single{
+    background: #5aa97c; /* أخضر هادئ */
+    color:#10121a;
+}
+button.single:hover{
+    background:#7dc1a0;
+}
+
+/* زر الملفين */
+button.common{
+    background: #4f81bd; /* أزرق هادئ */
+    color:#f0f0f5;
+}
+button.common:hover{
+    background:#6995d1;
+}
+
+/* ============================
+   responsiveness
+============================ */
+@media(max-width:600px){
+    .container{
+        padding:20px;
+        margin:20px;
+    }
+
+    button{
+        width:100%;
+        margin-bottom:10px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+<div class="container">
+
+<h2>تحليل أرقام الاتصالات</h2>
+
+<p>ملف Excel الأول:</p>
+<input type="file" id="file1" accept=".xlsx,.xls">
+
+<p>ملف Excel الثاني (اختياري):</p>
+<input type="file" id="file2" accept=".xlsx,.xls">
+
+<button class="single" onclick="analyzeSingle()">تحليل التكرار (ملف واحد)</button>
+<button class="common" onclick="analyzeBothFiles()">تحليل المشترك (ملفين)</button>
+
+<div id="result"></div>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
